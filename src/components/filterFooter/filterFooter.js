@@ -1,20 +1,22 @@
 import React, { Component } from "react";
 import "./index.scss";
 import { FILTERS } from "../../constants/filter";
+import { connect } from "react-redux";
+import {
+  setVisibilityFilter,
+  clearCompletedTodo,
+} from "../../store/action/index";
+import { getCompleted, getUnCompleted } from "../../store/selector";
 
-export class FilterFooter extends Component {
+class FilterFooter extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
-  handleFilter = (key) => {
-    this.props.onFilter(key);
-  };
   onClear = () => {
     this.props.onClear();
   };
   render() {
-    const { filter, unCompletedTodoLength, completedTodoLength } = this.props;
     const filterTitles = [
       { key: FILTERS.all, value: "All" },
       { key: FILTERS.active, value: "Active" },
@@ -24,8 +26,8 @@ export class FilterFooter extends Component {
       <footer className="todo-footer-wrapper">
         <span className="tfw-count">
           <span>
-            {unCompletedTodoLength}{" "}
-            {unCompletedTodoLength <= 1 ? "item" : "items"} left
+            {this.props.itemsLeft}{" "}
+            {this.props.itemsLeft <= 1 ? "item" : "items"} left
           </span>
         </span>
         <ul className="tfw-filter">
@@ -33,16 +35,16 @@ export class FilterFooter extends Component {
             <li key={index}>
               <a
                 href="#"
-                className={filter === item.key ? "selected" : null}
-                onClick={() => this.handleFilter(item.key)}
+                className={this.props.filter === item.key ? "selected" : null}
+                onClick={() => this.props.onFilter(item.key)}
               >
                 {item.value}
               </a>
             </li>
           ))}
         </ul>
-        {completedTodoLength > 0 ? (
-          <button className="tfw-clear" onClick={this.onClear}>
+        {this.props.completedCount > 0 ? (
+          <button className="tfw-clear" onClick={this.props.clearTodo}>
             Clear completed
           </button>
         ) : null}
@@ -50,3 +52,26 @@ export class FilterFooter extends Component {
     );
   }
 }
+
+const mapStateToState = (state) => {
+  return {
+    filter: state.visibilityFilter,
+    itemsLeft: getUnCompleted(state.todos).length,
+    completedCount: getCompleted(state.todos).length,
+  };
+};
+
+const mapStateToDispatch = (dispatch) => {
+  return {
+    onFilter: (filter) => {
+      dispatch(setVisibilityFilter(filter));
+    },
+    clearTodo: () => {
+      dispatch(clearCompletedTodo());
+    },
+  };
+};
+
+FilterFooter = connect(mapStateToState, mapStateToDispatch)(FilterFooter);
+
+export default FilterFooter;

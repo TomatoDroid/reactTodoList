@@ -20,7 +20,7 @@ export class ListItem extends Component {
     }, 10);
   };
   onBlur = () => {
-    this.props.onBlur({ text: this.state.editValue });
+    this.props.onBlur({ id: this.props.data.id, text: this.state.editValue });
     this.setState({
       isEdit: false,
     });
@@ -33,7 +33,6 @@ export class ListItem extends Component {
   onToggle = () => {
     this.props.onToggle({
       id: this.props.data.id,
-      completed: !this.props.data.completed,
     });
   };
   onDelete = () => {
